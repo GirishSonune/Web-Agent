@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Browser Voice Copilot</title>
+    <link rel="stylesheet" href="popup.css">
+  </head>
+  <body>
+    <main class="popup">
+      <header class="header">
+        <div>
+          <h1>Voice Copilot</h1>
+          <p>Control the current page with voice.</p>
+        </div>
+        <button id="toggle" class="icon-button" type="button" title="Open AI voice control" aria-label="Open AI voice control" aria-pressed="false">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M12 3a3 3 0 0 0-3 3v5a3 3 0 1 0 6 0V6a3 3 0 0 0-3-3Z" stroke="currentColor" stroke-width="2"/>
+            <path d="M5 10v1a7 7 0 0 0 14 0v-1M12 18v3M8 21h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </header>
+
+      <section class="commands" aria-label="Example commands">
+        <button data-command="scroll down" type="button">Scroll down</button>
+        <button data-command="click login" type="button">Click login</button>
+        <button data-command="type wireless headphones in search" type="button">Type in search</button>
+        <button data-command="refresh page" type="button">Refresh</button>
+      </section>
+
+      <button id="voiceStudio" class="wide-button" type="button">Open AI voice control</button>
+
+      <footer>
+        <button id="options" class="text-button" type="button">Settings</button>
+        <span id="status" role="status">Ready</span>
+      </footer>
+    </main>
+    <script src="popup.js"></script>
+  </body>
+</html>

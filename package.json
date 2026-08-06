@@ -1,0 +1,18 @@
+{
+  "name": "web-interactivie-extension",
+  "version": "1.0.0",
+  "description": "Privacy-first voice control browser extension built with Manifest V3.",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "validate": "powershell -ExecutionPolicy Bypass -File scripts/validate-extension.ps1",
+    "check": "node --check src/background/service-worker.js && node --check src/content/content.js && node --check src/popup/popup.js && node --check src/options/options.js && node --check src/voice/voice.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@huggingface/transformers": "^4.2.0"
+  }
+}

@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>AI Voice Control</title>
+    <link rel="stylesheet" href="voice.css">
+  </head>
+  <body>
+    <main class="voice-shell">
+      <header>
+        <div>
+          <h1>AI Voice Control</h1>
+          <p>Local Whisper transcription with Transformers.js, then command execution in your selected tab.</p>
+        </div>
+        <div id="hardware" class="hardware" aria-live="polite">Checking hardware...</div>
+      </header>
+
+      <section class="controls" aria-label="Voice controls">
+        <button id="record" class="record" type="button" aria-pressed="false">
+          <span class="record-dot"></span>
+          <span id="recordLabel">Hold to record</span>
+        </button>
+        <button id="sendLast" type="button" disabled>Send last transcript</button>
+      </section>
+
+      <section class="settings" aria-label="Model settings">
+        <label>
+          <span>Model</span>
+          <input id="model" value="onnx-community/whisper-tiny.en">
+        </label>
+        <label>
+          <span>Device</span>
+          <select id="device">
+            <option value="auto">Auto</option>
+            <option value="webnn-npu">Intel NPU via WebNN</option>
+            <option value="webnn-gpu">WebNN GPU</option>
+            <option value="webnn-cpu">WebNN CPU</option>
+            <option value="webgpu">WebGPU</option>
+            <option value="wasm">WASM CPU</option>
+          </select>
+        </label>
+        <label>
+          <span>Quantization</span>
+          <select id="dtype">
+            <option value="q4">4-bit q4</option>
+            <option value="q8">8-bit q8</option>
+            <option value="fp16">fp16</option>
+            <option value="fp32">fp32</option>
+          </select>
+        </label>
+        <label>
+          <span>Language hint</span>
+          <input id="language" value="english">
+        </label>
+      </section>
+
+      <section class="status-panel" aria-label="Status">
+        <div class="meter"><div id="progressBar"></div></div>
+        <p id="status" role="status">Ready. First transcription downloads the model and may take a while.</p>
+        <textarea id="transcript" rows="5" placeholder="Transcript will appear here"></textarea>
+      </section>
+    </main>
+    <script type="module" src="voice.js"></script>
+  </body>
+</html>
