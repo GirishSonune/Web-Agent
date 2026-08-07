@@ -30,6 +30,7 @@ form.addEventListener("submit", async (event) => {
 
   const response = await chrome.runtime.sendMessage({ type: "VOICE_COPILOT_SAVE_SETTINGS", settings });
   status.textContent = response?.ok ? "Saved" : "Could not save";
+  if (response?.ok) applyTheme(settings.theme);
   setTimeout(() => status.textContent = "", 2200);
 });
 
@@ -43,6 +44,7 @@ async function loadSettings() {
   form.scrollSpeed.value = settings.scrollSpeed;
   form.voiceSensitivity.value = settings.voiceSensitivity;
   form.theme.value = settings.theme;
+  applyTheme(settings.theme);
   updateOutputs();
 }
 

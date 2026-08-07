@@ -82,10 +82,40 @@
 
     const host = document.createElement("browser-voice-copilot");
     host.setAttribute("aria-hidden", "false");
+    host.dataset.theme = state.settings.theme;
     const shadow = host.attachShadow({ mode: "closed" });
     shadow.innerHTML = `
       <style>
-        :host { all: initial; }
+        :host {
+          all: initial;
+          --bvc-bg: rgba(255, 255, 255, 0.96);
+          --bvc-surface: rgba(255, 255, 255, 0.96);
+          --bvc-surface-strong: rgba(248, 250, 252, 0.95);
+          --bvc-border: rgba(17, 24, 39, 0.16);
+          --bvc-text: #101318;
+          --bvc-muted: #4b5563;
+          --bvc-shadow: rgba(15, 23, 42, 0.20);
+        }
+        :host([data-theme="dark"]) {
+          --bvc-bg: rgba(17, 24, 39, 0.94);
+          --bvc-surface: rgba(17, 24, 39, 0.94);
+          --bvc-surface-strong: rgba(14, 21, 45, 0.96);
+          --bvc-border: rgba(255, 255, 255, 0.12);
+          --bvc-text: #f8fafc;
+          --bvc-muted: #cbd5e1;
+          --bvc-shadow: rgba(0, 0, 0, 0.36);
+        }
+        @media (prefers-color-scheme: dark) {
+          :host([data-theme="system"]) {
+            --bvc-bg: rgba(17, 24, 39, 0.94);
+            --bvc-surface: rgba(17, 24, 39, 0.94);
+            --bvc-surface-strong: rgba(14, 21, 45, 0.96);
+            --bvc-border: rgba(255, 255, 255, 0.12);
+            --bvc-text: #f8fafc;
+            --bvc-muted: #cbd5e1;
+            --bvc-shadow: rgba(0, 0, 0, 0.36);
+          }
+        }
         .bvc-panel {
           position: fixed;
           right: 18px;
@@ -93,8 +123,10 @@
           z-index: 2147483647;
           display: grid;
           gap: 8px;
-          width: min(320px, calc(100vw - 32px));
-          color: #101318;
+          width: auto;
+          max-width: 320px;
+          min-width: 0;
+          color: var(--bvc-text);
           font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
           pointer-events: none;
         }
@@ -104,13 +136,14 @@
           grid-template-columns: 44px 1fr;
           align-items: center;
           gap: 10px;
-          width: 230px;
+          width: auto;
+          min-width: 0;
           min-height: 58px;
           padding: 7px 12px 7px 7px;
-          border: 1px solid rgba(17, 24, 39, 0.16);
+          border: 1px solid var(--bvc-border);
           border-radius: 8px;
-          background: color-mix(in srgb, Canvas 92%, transparent);
-          box-shadow: 0 14px 42px rgba(15, 23, 42, 0.20);
+          background: var(--bvc-surface);
+          box-shadow: 0 14px 42px var(--bvc-shadow);
           backdrop-filter: blur(14px);
           pointer-events: auto;
         }
@@ -164,7 +197,7 @@
         .bvc-wave span:nth-child(4) { animation-delay: 270ms; }
         .bvc-listening .bvc-wave { display: flex; }
         .bvc-candidates {
-          display: grid;
+          display: none;
           gap: 6px;
           max-height: 260px;
           overflow: auto;
@@ -280,6 +313,7 @@
     if (!state.overlay) createOverlay();
     if (!state.overlay) return;
 
+    state.overlay.host.dataset.theme = state.settings.theme;
     state.overlay.widget.classList.toggle("bvc-listening", state.listening);
     state.overlay.button.setAttribute("aria-pressed", String(state.listening));
     state.overlay.status.textContent = message || (state.listening ? "Listening..." : "Press Ctrl+Shift+Y or tap mic");

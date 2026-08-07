@@ -1,37 +1,89 @@
 :root {
   color-scheme: light dark;
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --bg: #eef2ff;
+  --surface: #ffffff;
+  --surface-strong: #f8fafc;
+  --text: #111827;
+  --muted: #475569;
+  --border: #e5e7eb;
+  --shadow: rgba(15, 23, 42, 0.08);
+  --button: #2563eb;
+  --button-strong: #1d4ed8;
+}
+
+:root[data-theme="dark"] {
+  --bg: #0b1120;
+  --surface: #111827;
+  --surface-strong: #0f172a;
+  --text: #f8fafc;
+  --muted: #cbd5e1;
+  --border: #334155;
+  --shadow: rgba(15, 23, 42, 0.72);
+  --button: #3b82f6;
+  --button-strong: #2563eb;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-theme="system"] {
+    --bg: #0b1120;
+    --surface: #111827;
+    --surface-strong: #0f172a;
+    --text: #f8fafc;
+    --muted: #cbd5e1;
+    --border: #334155;
+    --shadow: rgba(15, 23, 42, 0.72);
+    --button: #3b82f6;
+    --button-strong: #2563eb;
+  }
 }
 
 body {
-  width: 330px;
+  width: 100%;
   margin: 0;
-  color: CanvasText;
-  background: Canvas;
+  color: var(--text);
+  background: var(--bg);
 }
 
 .popup {
   display: grid;
-  gap: 14px;
-  padding: 16px;
+  gap: 16px;
+  padding: 18px;
+  width: 340px;
+  background: var(--surface);
+  border-radius: 24px;
+  box-shadow: 0 28px 80px var(--shadow);
 }
 
 .header {
   display: grid;
-  grid-template-columns: 1fr 48px;
+  grid-template-columns: 1fr auto;
   align-items: center;
   gap: 12px;
 }
 
 h1 {
   margin: 0;
-  font-size: 18px;
+  font-size: 19px;
   line-height: 1.2;
 }
 
 p {
-  margin: 4px 0 0;
-  color: color-mix(in srgb, CanvasText 66%, transparent);
+  margin: 6px 0 0;
+  color: #4b5563;
+  font-size: 13px;
+}
+
+.info-card {
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+}
+
+.info-card p {
+  margin: 0;
+  color: #475569;
   font-size: 13px;
 }
 
@@ -39,48 +91,61 @@ p {
   width: 48px;
   height: 48px;
   border: 0;
-  border-radius: 8px;
+  border-radius: 16px;
   color: white;
-  background: #1769e0;
+  background: #2563eb;
   cursor: pointer;
   display: grid;
   place-items: center;
+  transition: transform 120ms ease, background-color 120ms ease;
+}
+
+.icon-button:hover {
+  background: #1d4ed8;
+  transform: translateY(-1px);
 }
 
 .icon-button[aria-pressed="true"] {
-  background: #d12c4a;
-}
-
-.icon-button svg {
-  width: 22px;
-  height: 22px;
+  background: #dc2626;
 }
 
 .commands {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  gap: 10px;
 }
 
 .commands button,
 .text-button,
 .wide-button {
-  min-height: 36px;
-  border: 1px solid color-mix(in srgb, CanvasText 18%, transparent);
-  border-radius: 8px;
-  color: CanvasText;
-  background: color-mix(in srgb, Canvas 92%, CanvasText 8%);
+  min-height: 40px;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  color: #111827;
+  background: #f8fafc;
   cursor: pointer;
   font: inherit;
   font-size: 13px;
+  transition: transform 120ms ease, border-color 120ms ease, background-color 120ms ease;
+}
+
+.commands button:hover,
+.text-button:hover {
+  border-color: #cbd5e1;
+  background: #ffffff;
+  transform: translateY(-1px);
 }
 
 .wide-button {
   width: 100%;
   color: white;
-  background: #1769e0;
-  border-color: #1769e0;
+  background: #2563eb;
+  border-color: #2563eb;
   font-weight: 800;
+}
+
+.wide-button:hover {
+  background: #1d4ed8;
 }
 
 footer {
@@ -91,7 +156,7 @@ footer {
 }
 
 #status {
-  color: color-mix(in srgb, CanvasText 64%, transparent);
+  color: #6b7280;
   font-size: 12px;
   text-align: right;
   max-width: 180px;

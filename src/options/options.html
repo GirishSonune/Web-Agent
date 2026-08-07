@@ -9,51 +9,63 @@
   <body>
     <main class="settings">
       <header>
-        <h1>Voice Copilot Settings</h1>
-        <p>Privacy-first controls for speech activation, overlays, and safety confirmation.</p>
+        <div>
+          <h1>Voice Copilot Settings</h1>
+          <p>Privacy-first controls for speech activation, overlays, and safety confirmation.</p>
+        </div>
       </header>
 
       <form id="settings-form">
-        <label>
-          <span>Wake phrase</span>
-          <input id="wakeWord" name="wakeWord" maxlength="40" autocomplete="off">
-        </label>
+        <div class="form-grid">
+          <label>
+            <span>Wake phrase</span>
+            <input id="wakeWord" name="wakeWord" maxlength="40" autocomplete="off" placeholder="e.g. hey google">
+          </label>
 
-        <label>
-          <span>Language</span>
-          <input id="language" name="language" maxlength="20" autocomplete="off" placeholder="en-US">
-        </label>
+          <label>
+            <span>Language</span>
+            <input id="language" name="language" maxlength="20" autocomplete="off" placeholder="en-US">
+          </label>
 
-        <label class="switch">
-          <input id="overlayEnabled" name="overlayEnabled" type="checkbox">
-          <span>Show floating overlay</span>
-        </label>
+          <label>
+            <span>Theme</span>
+            <select id="theme" name="theme">
+              <option value="system">System</option>
+              <option value="light">Light</option>
+              <option value="dark">Dark</option>
+            </select>
+          </label>
+        </div>
 
-        <label class="switch">
-          <input id="autoConfirm" name="autoConfirm" type="checkbox">
-          <span>Auto-confirm risky commands</span>
-        </label>
+        <div class="toggle-grid">
+          <label class="switch">
+            <input id="overlayEnabled" name="overlayEnabled" type="checkbox">
+            <span>Show floating overlay</span>
+          </label>
 
-        <label>
-          <span>Scroll speed</span>
-          <input id="scrollSpeed" name="scrollSpeed" type="range" min="100" max="2000" step="50">
-          <output id="scrollSpeedValue"></output>
-        </label>
+          <label class="switch">
+            <input id="autoConfirm" name="autoConfirm" type="checkbox">
+            <span>Auto-confirm risky commands</span>
+          </label>
+        </div>
 
-        <label>
-          <span>Voice sensitivity</span>
-          <input id="voiceSensitivity" name="voiceSensitivity" type="range" min="0" max="1" step="0.05">
-          <output id="voiceSensitivityValue"></output>
-        </label>
+        <div class="range-grid">
+          <label>
+            <span>Scroll speed</span>
+            <div class="range-row">
+              <input id="scrollSpeed" name="scrollSpeed" type="range" min="100" max="2000" step="50">
+              <output id="scrollSpeedValue"></output>
+            </div>
+          </label>
 
-        <label>
-          <span>Theme</span>
-          <select id="theme" name="theme">
-            <option value="system">System</option>
-            <option value="light">Light</option>
-            <option value="dark">Dark</option>
-          </select>
-        </label>
+          <label>
+            <span>Voice sensitivity</span>
+            <div class="range-row">
+              <input id="voiceSensitivity" name="voiceSensitivity" type="range" min="0" max="1" step="0.05">
+              <output id="voiceSensitivityValue"></output>
+            </div>
+          </label>
+        </div>
 
         <div class="actions">
           <button type="submit">Save settings</button>
@@ -61,6 +73,8 @@
         </div>
       </form>
     </main>
+    <script src="../theme.js"></script>
+    <script src="../theme-init.js"></script>
     <script src="options.js"></script>
   </body>
 </html>

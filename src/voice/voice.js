@@ -1,4 +1,9 @@
-import { env, pipeline } from "../../node_modules/@huggingface/transformers/dist/transformers.web.js";
+const env = globalThis.env;
+const pipeline = globalThis.pipeline;
+
+if (!env || typeof pipeline !== "function") {
+  throw new Error("Transformers.js failed to load. Check that the voice page scripts are available.");
+}
 
 const TARGET_SAMPLE_RATE = 16000;
 const DEFAULT_MODEL = "onnx-community/whisper-tiny.en";
