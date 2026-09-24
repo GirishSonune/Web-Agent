@@ -494,9 +494,15 @@
         rememberAction({ type: "type", element: candidate.element, previousValue });
         updateOverlay(`Typed "${candidate.pendingText}"`);
       } else {
-        await clickElement(candidate.element);
-        rememberAction({ type: "click", element: candidate.element });
-        updateOverlay(`Clicked ${candidate.label}`);
+        const openedUrl = await openElementInNewTab(candidate.element);
+        if (openedUrl) {
+          rememberAction({ type: "open", element: candidate.element, url: openedUrl });
+          updateOverlay(`Opened ${candidate.label} in new tab`);
+        } else {
+          await clickElement(candidate.element);
+          rememberAction({ type: "click", element: candidate.element });
+          updateOverlay(`Clicked ${candidate.label}`);
+        }
       }
       clearHighlights();
       return { executed: true, type: "selectCandidate", transcript };
@@ -606,9 +612,11 @@
       ["tenth", 10]
     ]);
 
-    const explicit = text.match(/^(?:number|option|choose|select|pick|open|click|tap)\s+(?:the\s+)?(\d{1,2}|[a-z]+)(?:\s+(?:option|result|item|one))?$/);
+    const explicit = text.match(/^(?:choose|select|pick|open|click|tap)\s+(?:the\s+)?(?:(?:option|result|item|number)\s+)?(?:number\s+)?(\d{1,2}|[a-z]+)(?:\s+(?:option|result|item|one))?$/);
+    const prefixed = text.match(/^(?:option|result|item|number)\s+(?:number\s+)?(\d{1,2}|[a-z]+)$/);
+    const suffixed = candidateCount > 0 ? text.match(/^(?:the\s+)?(\d{1,2}|[a-z]+)(?:\s+(?:option|result|item|one))$/) : null;
     const bare = candidateCount > 0 ? text.match(/^(\d{1,2}|[a-z]+)$/) : null;
-    const value = explicit?.[1] || bare?.[1];
+    const value = explicit?.[1] || prefixed?.[1] || suffixed?.[1] || bare?.[1];
     if (!value) return null;
 
     const index = /^\d+$/.test(value) ? Number(value) : ordinals.get(value);
@@ -931,6 +939,84 @@
     element.dispatchEvent(new MouseEvent("click", options));
   }
 
+  async function openElementInNewTab(element) {
+    const url = getElementUrl(element);
+    if (!url) return "";
+
+    element.scrollIntoView({ block: "center", inline: "center", behavior: "smooth" });
+    await delay(120);
+    highlightElements([{ element, label: getElementLabel(element) }]);
+    await delay(120);
+
+    await chrome.runtime.sendMessage({
+      type: "VOICE_COPILOT_OPEN_RAW_URL",
+      url
+    });
+    return url;
+  }
+
+  function getElementUrl(element) {
+    const link = findBestLinkForElement(element);
+    const rawHref = link?.getAttribute("href");
+    if (!rawHref) return "";
+
+    let url;
+    try {
+      url = new URL(rawHref, window.location.href);
+    } catch {
+      return "";
+    }
+
+    if (!["http:", "https:"].includes(url.protocol)) return "";
+
+    const redirected = unwrapSearchRedirect(url);
+    return redirected || url.href;
+  }
+
+  function findBestLinkForElement(element) {
+    if (!element) return null;
+    if (element.matches?.("a[href]")) return element;
+
+    const closest = element.closest?.("a[href]");
+    if (closest) return closest;
+
+    const innerLink = findUsableLink(element.querySelectorAll?.("a[href]"));
+    if (innerLink) return innerLink;
+
+    let parent = element.parentElement;
+    for (let depth = 0; parent && depth < 4; depth += 1) {
+      const parentLink = findUsableLink(parent.querySelectorAll("a[href]"));
+      if (parentLink) return parentLink;
+      parent = parent.parentElement;
+    }
+
+    return null;
+  }
+
+  function findUsableLink(links) {
+    return Array.from(links || []).find((link) => {
+      const href = link.getAttribute("href") || "";
+      if (!href || href === "#" || href.startsWith("javascript:")) return false;
+      const label = normalizeLabel(getElementLabel(link));
+      return label.length > 0 || link.querySelector("h1,h2,h3,img,[role='heading']");
+    }) || null;
+  }
+
+  function unwrapSearchRedirect(url) {
+    const isGoogleHost = /(^|\.)google\./i.test(url.hostname);
+    if (!isGoogleHost) return "";
+
+    const target = url.searchParams.get("url") || url.searchParams.get("q");
+    if (!target || !/^https?:\/\//i.test(target)) return "";
+
+    try {
+      const targetUrl = new URL(target);
+      return ["http:", "https:"].includes(targetUrl.protocol) ? targetUrl.href : "";
+    } catch {
+      return "";
+    }
+  }
+
   function typeIntoElement(element, text) {
     element.scrollIntoView({ block: "center", inline: "center", behavior: "smooth" });
     element.focus({ preventScroll: true });
@@ -963,7 +1049,7 @@
   }
 
   function highlightElements(matches) {
-    clearHighlights();
+    clearHighlights({ clearCandidates: false });
     if (!state.overlay) return;
 
     for (const [index, match] of matches.entries()) {
@@ -987,14 +1073,15 @@
     }
   }
 
-  function clearHighlights() {
-    if (state.overlay?.candidates) {
+  function clearHighlights(options = {}) {
+    const shouldClearCandidates = options.clearCandidates !== false;
+    if (shouldClearCandidates && state.overlay?.candidates) {
       state.overlay.candidates.hidden = true;
       state.overlay.candidates.innerHTML = "";
     }
     for (const mark of state.overlay?.marks || []) mark.remove();
     if (state.overlay) state.overlay.marks = [];
-    state.candidates = [];
+    if (shouldClearCandidates) state.candidates = [];
   }
 
   function requiresConfirmation(command) {

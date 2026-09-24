@@ -26,6 +26,7 @@ const elements = {
 };
 
 const state = {
+  mediaStream: null,
   mediaRecorder: null,
   chunks: [],
   transcriber: null,
@@ -49,6 +50,10 @@ elements.sendLast.addEventListener("click", async () => {
   await sendCommand(elements.transcript.value.trim());
 });
 
+window.addEventListener("beforeunload", () => {
+  stopMicrophoneStream();
+});
+
 for (const element of [elements.model, elements.device, elements.dtype]) {
   element.addEventListener("change", () => {
     state.transcriber = null;
@@ -64,14 +69,7 @@ async function startRecording() {
   }
 
   try {
-    const stream = await navigator.mediaDevices.getUserMedia({
-      audio: {
-        channelCount: 1,
-        echoCancellation: true,
-        noiseSuppression: true,
-        autoGainControl: true
-      }
-    });
+    const stream = await getMicrophoneStream();
 
     state.chunks = [];
     const mimeType = chooseMimeType();
@@ -81,7 +79,6 @@ async function startRecording() {
       if (event.data.size > 0) state.chunks.push(event.data);
     };
     state.mediaRecorder.onstop = async () => {
-      stream.getTracks().forEach((track) => track.stop());
       await transcribeAndSend();
     };
 
@@ -93,6 +90,27 @@ async function startRecording() {
   } catch (error) {
     setStatus(`Microphone error: ${formatError(error)}`);
   }
+}
+
+async function getMicrophoneStream() {
+  const activeTrack = state.mediaStream?.getAudioTracks().find((track) => track.readyState === "live");
+  if (state.mediaStream && activeTrack) return state.mediaStream;
+
+  state.mediaStream = await navigator.mediaDevices.getUserMedia({
+    audio: {
+      channelCount: 1,
+      echoCancellation: true,
+      noiseSuppression: true,
+      autoGainControl: true
+    }
+  });
+
+  return state.mediaStream;
+}
+
+function stopMicrophoneStream() {
+  state.mediaStream?.getTracks().forEach((track) => track.stop());
+  state.mediaStream = null;
 }
 
 function stopRecording() {

@@ -40,6 +40,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
 async function handleMessage(message, sender) {
   switch (message?.type) {
+    case "VOICE_COPILOT_OPEN_RAW_URL": {
+      const url = validateHttpUrl(message.url);
+      await chrome.tabs.create({ url });
+      return { url };
+    }
     case "VOICE_COPILOT_OPEN_URL": {
       const url = normalizeDestination(message.destination);
       if (message.disposition === "new-tab") {
@@ -87,6 +92,12 @@ async function handleMessage(message, sender) {
     default:
       return null;
   }
+}
+
+function validateHttpUrl(rawUrl) {
+  const url = new URL(String(rawUrl || ""));
+  if (!["http:", "https:"].includes(url.protocol)) throw new Error("Only http and https URLs can be opened");
+  return url.href;
 }
 
 async function getActiveTabId() {
